@@ -1,0 +1,32 @@
+import csv
+
+#Eg: InfoCompare.exe -source=c:\1.csv -target=c:\2.csv -ratio=10 -ignore={} -fileType=Summary
+
+def main(source, target, ratio, ignore, fileType):
+
+    #check if source and target are csv files
+    #if yes: run compsummary
+    #if no: run compcompany
+    #if they differ in type, error
+
+    try:
+
+    except Exception as e:
+
+
+
+# import csv
+
+# # Function to read a CSV file and display its contents
+# def read_csv_file(file_path):
+#     try:
+#         with open(file_path, mode='r', newline='') as file:
+#             csv_reader = csv.reader(file)
+#             for row in csv_reader:
+#                 print(row)
+#     except Exception as e:
+#         print(f"Error reading the CSV file: {e}")
+
+# # Example usage
+# file_path = 'path_to_your_file.csv'  # Replace with your actual file path
+# read_csv_file(file_path)
