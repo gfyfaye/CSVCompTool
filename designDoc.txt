@@ -1,0 +1,71 @@
+Information Comparison Tool 
+Design Document
+
+OVERVIEW
+    this document details the design process for the information comparison tool.
+
+    this system reads two csv documents, compares data based on a given ratio limit, 
+        and generates a summary csv file.
+        - it also handles data to ignore based on user input
+
+OBJECTIVES
+    validate the format and contents of the csv files
+    remove blank elements from data
+    compare data from the two csv files and record on a summary csv file
+    ignore specified data points if they appear on either source document
+
+FUNCTIONS
+    csv_check(file_path)
+        usage: called in compSummary to check if input sources are valid csv
+        input: string (csv file path)
+        output: boolean (file validity)
+
+            1. checks that input ending is ".csv"
+            2. opens input file and reads first line
+            3. returns whether first line is empty
+
+    remove_blanks(inputarray)
+        usage: called in compSummary when iterating through each Company's service usage data
+        input: array
+        output: array
+
+            1. iterate through input calling strip() to remove white space
+            2. return array of non-whitespace elements
+        
+    compSummary(source1, source2, ratio, ignore)
+        usage: called in main when inputted fileType is "Summary", compares data from source documents against a ratio value 
+            and records results in a target csv file
+        input: 
+            string (csv source file 1 path)
+            string (csv source file 2 path)
+            integer (ratio)
+            array (companies to ignore)
+        output: 
+            none (see target.csv for output)
+
+            1. verifies sources are valid csv with csv_check()
+            2. creates data storage 
+                [VARIABLE] source1_dict : dictionary to store company data from source 1
+                [VARIABLE] source2_dict : dictionary to store company data from source 2
+            3. reads source 1, adds all rows to source1_dict (also calls remove_blanks())
+                [VARIABLE] temp : first row data (all service names)
+                exits if source 1 is empty
+            4. reads source 2, adds all rows to source2_dict (also calls remove_blanks())
+                exits if source 2 is empty
+            5. initializes empty file
+                writes first row of service names (previously saved as temp)
+            6. loops through all unique companies from sources, filling in appropriate data based on outcome
+                [VARIABLE] all_companies: all unique companies across sources
+                    CASES: 
+                        a. company is in ignore list --> all columns filled with "-" to skip
+                        b. company appears in both sources --> calculate difference between sources,
+                            records "-" if diff < ratio, "X" if diff > ratio
+                            [VARIABLE] source1_vals : list of floats of company's service usage data from source 1
+                            [VARIABLE] source2_vals : list of floats of company's service usage data from source 2
+                        c. company appears in only one source --> prints note
+
+            
+    main()
+        usage: asks for and reads user input, calls compSummary or compCompany based on parameter fileType's value
+        input: none
+        output: none

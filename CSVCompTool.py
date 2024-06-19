@@ -1,10 +1,8 @@
 import csv
-import json
 
-#Eg: InfoCompare.exe -source=c:\1.csv -target=c:\2.csv -ratio=10 -ignore={} -fileType=Summary
-
-
+#checks validity of path to csv file
 def csv_check(file_path):
+    #check ending of file path
     if not file_path.lower().endswith('.csv'):
         return False
     
@@ -17,17 +15,17 @@ def csv_check(file_path):
         else:
             return True
 
+#removes blank or whitespace elements from an array
+def remove_blanks(inputarray):
+    return [i.strip() for i in inputarray if i.strip()]
 
 
 
-
-
-
-
-def compsummary(source1, source2, ratio, ignore):
+def compSummary(source1, source2, ratio, ignore):
 
     #check that both are valid csv files
     if not csv_check(source2) or not csv_check(source2):
+        print("One or both source files are invalid.\n")
         return
 
     source1_dict = {}
@@ -41,26 +39,28 @@ def compsummary(source1, source2, ratio, ignore):
         first_row = next(s1reader, None)
 
         if first_row == None:
-            print("source 1 is empty")
+            print("Source 1 is empty\n")
             return
     
         #add to dictionary: key-company name, value-row contents
         for row in s1reader:
             if row: 
                 temp = row[0]
-                source1_dict[temp] = row[1:]
+                source1_dict[temp] = remove_blanks(row[1:])
 
 
     #read second file
     with open(source2, mode='r', newline='') as s2file:
         s2reader = csv.reader(s2file)
-
+        if s2reader == None:
+            print("Source 2 is empty\n")
+            return
 
         #add to dictionary: key-company name, value-row contents
         for row in s2reader:
             if row: 
                 temp = row[0]
-                source2_dict[temp] = row[1:]
+                source2_dict[temp] = remove_blanks(row[1:])
 
     #create a target file
     with open('target.csv', mode='w', newline='') as targetfile:
@@ -78,7 +78,7 @@ def compsummary(source1, source2, ratio, ignore):
 
             #if company in ignore, it's passed
             if company in ignore:
-                row.extend(["-"] * len(first_row[1:]))
+                row.extend(["I"] * len(first_row[1:]))
 
             #if a company is in both sources, calculate ratio and compare with ratio limit
             if company in source1_dict and company in source2_dict:
@@ -91,17 +91,24 @@ def compsummary(source1, source2, ratio, ignore):
                 for v1, v2 in zip(source1_vals, source2_vals):
 
                     #calculate diff
-                    diff = abs((v2 - v1) / v1) * 100
-                    if diff > ratio:
-                        row.append("NAURRR")
-                    else:
+                    if v1 == 0 and v2 == 0: 
                         row.append("-")
+                    else: 
+                        if v1 == 0:
+                            diff = abs(v2) #if first month count = 0, diff = second month count
+                        else:  
+                            diff = abs((v2 - v1) / v1) * 100
+                        
+                        if diff > ratio:
+                            row.append("X")
+                        else:
+                            row.append("-")
 
             #handling companies that only appear in one source
             elif company in source1_dict:
-                row.extend(["Only in Source 1"] * len(first_row[1:]))
+                row.extend(["1"] * len(first_row[1:]))
             elif company in source2_dict:
-                row.extend(["Only in Source 2"] * len(first_row[1:]))
+                row.extend(["2"] * len(first_row[1:]))
 
             writer.writerow(row)
 
@@ -110,35 +117,37 @@ def compsummary(source1, source2, ratio, ignore):
 
 def main():
 
-    print("\nPlease provide the necessary inputs in the following comma-separated format: \n\nPath to Source 1 File: eg: \"path/to/file.csv\"\nPath to Source 2 File: eg: \"path/to/file.csv\"\nRatio Limit: integer ranging from 0 to 100 \nCompanies to Ignore: eg [\"CompanyName 1\", \"CompanyName 2\"]\nType of Sources: \"Summary\" or \"Company\"\n")
-    print("Format: source_1_file_name, source_2_file_name, ratio, companies_to_ignore, fileType\n")
-    userinput = input("Enter the inputs: ")
+    print("\nSee User Manual for input and format\n")
+    userinput = input("Type here: ")
 
-    uinputs = userinput.split(',')
+    uinputs = userinput.split(';')
+
+    if len(uinputs) != 5:
+        print(len(uinputs))
+        print("Incorrect number of inputs. Please enter the inputs in the specified format.")
+        return
 
     source1 = uinputs[0].strip()
     source2 = uinputs[1].strip()
     ratio = float(uinputs[2].strip())
-    try:
-        ignore = json.loads(uinputs[3].strip().replace("'", "\""))
-        if not isinstance(ignore, list):
-            raise ValueError
-    except:
-        print(f"Error: Companies to Ignore is an invalid JSON array.")
+
+    ignore = uinputs[3].strip()
+
+    if ignore.startswith('[') and ignore.endswith(']'):
+        ignore = ignore[1:-1]
+        ignore = [c.strip() for c in ignore.split(',')]
+    else:
+        print("Companies to ignore should be in the format [Company A, Company B].")
         return
-    
     
     fileType = uinputs[4].strip()
 
-
-    print(source1)
-    print(source2)
-    print(ratio)
-    print(ignore)
-    print(fileType)
-
     if fileType == 'Summary':
-        compsummary(source1, source2, ratio, ignore)
+        compSummary(source1, source2, ratio, ignore)
+    else:
+        return
+    
+    print("\nSee target.csv to view results\n")
 
 
 
@@ -147,4 +156,7 @@ if __name__ == "__main__":
 
     main()
 
-    #Enter the inputs: sample\total_summary(2024_03_production).csv, sample\total_summary(2024_02_production).csv, 10, ["Hi", "Hello"], Summary 
+
+#IGNORE THIS
+#/Users/gracefayeyang/Desktop/infocomptool/sample/total_summary(2024_02_production).csv; /Users/gracefayeyang/Desktop/infocomptool/sample/total_summary(2024_03_production).csv; 10; [Hi, Hello]; Summary 
+

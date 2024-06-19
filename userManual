@@ -1,0 +1,52 @@
+INTRODUCTION
+    This CSV Comparison Tool is a Python script designed t ocompare data from two CSV files based on specified criteria. It generates a summary CSV file that displays significant differences between the input files.
+
+REQUIREMENTS:
+    Python System
+
+STEPS: 
+    Download and install Python
+    Ensure that the CSV files you wish to compare are accessible on your computer.
+
+RUNNING THE PROGRAM:
+    Execute the script by typing: 
+        Python CSVCompTool.py
+
+INPUT FORMAT:
+    The program expects the user input in the following format: 
+
+        source_1_file; source_2_file; ratio; ignore; fileType
+
+            - must be 5 parameters and separated by semicolons
+
+        source_1_file: source 1 file (path if needed)
+            format: /path/to/source1.csv
+        source_2_file: source 2 file (path if needed) 
+            format: /path/to/source2.csv
+        ratio: percentage threshold for comparison (0-100 int)
+            format: 10
+        companies_to_ignore: A list of company names to ignore
+            format: [Company A, Company B]
+        fileType: Summary or Company
+            format: Summary
+        
+        Example Input:
+            /path/to/source1.csv;/path/to/source2.csv;10;[Company A, Company B];Summary
+
+OUTPUT
+    The program creates a file named target.csv in the same directory as the script. This file contains the comparison summary.
+    
+    target.csv legend:
+        "-" --> difference is less than ratio
+        "X" --> difference is greater than ratio
+        "I" --> company on ignore list, ignored
+        "1" --> company appears only in source 1
+        "2" --> company appears only in source 2
+
+ERROR HANDLING
+    Invalid CSV files:
+        If either of the input files is not a valid CSV, the program will print an error message and exit.
+    Incorrect input format:
+        If the input format is incorrect, the program will print a guidance message and exit.
+    Empty CSV files:
+        If either of the CSV files is empty, the program will notify the user and exit.
