@@ -1,5 +1,5 @@
 INTRODUCTION
-    This CSV Comparison Tool is a Python script designed t ocompare data from two CSV files based on specified criteria. It generates a summary CSV file that displays significant differences between the input files.
+    This CSV Comparison Tool is a Python script designed to compare data from two CSV files based on specified criteria. It generates a summary CSV file that displays significant differences between the input files.
 
 REQUIREMENTS:
     Python System
